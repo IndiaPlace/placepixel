@@ -23,7 +23,7 @@ Setup `accounts.json`:
 ```shell
 deno run -A main.ts
 
-# Compile to a binary
+# or compile to a binary
 deno compile -A main.ts
 ```
 
