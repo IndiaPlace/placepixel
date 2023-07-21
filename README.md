@@ -2,10 +2,22 @@
 
 Setup `.env` with:
 ```env
-REDDIT_USERNAME=asd
-REDDIT_PASSWORD=123
 CLIENT_ID=xxx
 CLIENT_SECRET=xxx
+```
+
+Setup `accounts.json`:
+```json
+[
+  {
+    "username": "abc",
+    "password": "xxx"
+  },
+  {
+    "username": "xyz",
+    "password": "345"
+  }
+]
 ```
 
 ```shell
