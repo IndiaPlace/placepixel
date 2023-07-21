@@ -32,7 +32,7 @@ async function fetchAccessToken(username, password, clientId, clientSecret) {
 }
 
 async function getPixel(x, y, accessToken, canvas) {
-   const response = await fetch("https://gql-realtime-2.reddit.com/query", {
+  const response = await fetch("https://gql-realtime-2.reddit.com/query", {
     method: "POST",
     headers: {
       "content-type": "application/json",
@@ -46,7 +46,8 @@ async function getPixel(x, y, accessToken, canvas) {
     },
     body: JSON.stringify({
       "operationName": "pixelHistory",
-      "query": "mutation pixelHistory($input: ActInput!) {\n  act(input: $input) {\n    data {\n      ... on BasicMessage {\n        id\n        data {\n          ... on GetTileHistoryResponseMessageData {\n            lastModifiedTimestamp\n            userInfo {\n              userID\n              username\n              __typename\n            }\n            __typename\n          }\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n",
+      "query":
+        "mutation pixelHistory($input: ActInput!) {\n  act(input: $input) {\n    data {\n      ... on BasicMessage {\n        id\n        data {\n          ... on GetTileHistoryResponseMessageData {\n            lastModifiedTimestamp\n            userInfo {\n              userID\n              username\n              __typename\n            }\n            __typename\n          }\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n",
       "variables": {
         "input": {
           "PixelMessageData": {
@@ -61,7 +62,6 @@ async function getPixel(x, y, accessToken, canvas) {
   });
 
   return await response.json();
-
 }
 
 async function placePixel(x, y, color, canvas, accessToken) {
@@ -79,7 +79,8 @@ async function placePixel(x, y, color, canvas, accessToken) {
     },
     body: JSON.stringify({
       "operationName": "setPixel",
-      "query": "mutation setPixel($input: ActInput!) {\n  act(input: $input) {\n    data {\n      ... on BasicMessage {\n        id\n        data {\n          ... on GetUserCooldownResponseMessageData {\n            nextAvailablePixelTimestamp\n            __typename\n          }\n          ... on SetPixelResponseMessageData {\n            timestamp\n            __typename\n          }\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n",
+      "query":
+        "mutation setPixel($input: ActInput!) {\n  act(input: $input) {\n    data {\n      ... on BasicMessage {\n        id\n        data {\n          ... on GetUserCooldownResponseMessageData {\n            nextAvailablePixelTimestamp\n            __typename\n          }\n          ... on SetPixelResponseMessageData {\n            timestamp\n            __typename\n          }\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n",
       "variables": {
         "input": {
           "PixelMessageData": {
@@ -96,21 +97,20 @@ async function placePixel(x, y, color, canvas, accessToken) {
   return await response.json();
 }
 
-async function place(username, password) {
-  const accessToken = await fetchAccessToken(
-    username,
-    password,
-    clientId,
-    clientSecret,
-  );
+async function place(accessToken, x, y) {
+  // const accessToken = await fetchAccessToken(
+  //   username,
+  //   password,
+  //   clientId,
+  //   clientSecret,
+  // );
+  // if (!accessToken) return;
 
-  console.log(accessToken);
-  if (!accessToken) return;
-
-  const data = await placePixel(502, 0, 13, 4, accessToken);
+  const data = await placePixel(x, y, 13, 4, accessToken);
+  console.log(data);
 
   {
-    const { data } = await getPixel(502, 0, accessToken, 4);
+    const { data } = await getPixel(x, y, accessToken, 4);
     console.log(data.act.data);
   }
 
@@ -121,6 +121,10 @@ async function place(username, password) {
   }
 }
 
-for (const { username, password } of users) {
-  console.log(await place(username, password));
-}
+// for (const { username, password } of users) {
+//   console.log(await place(username, password, 502, 0));
+// }
+
+// !!! Put your access token here.
+const accessToken = "...";
+console.log(await place(accessToken, 502, 0));
