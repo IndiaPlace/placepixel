@@ -1,4 +1,5 @@
 import "https://deno.land/std/dotenv/load.ts";
+import { parse } from "https://deno.land/std@0.195.0/flags/mod.ts";
 import { Buffer } from "node:buffer";
 
 const users = JSON.parse(Deno.readTextFileSync("./accounts.json"));
@@ -106,25 +107,60 @@ async function place(accessToken, x, y) {
   // );
   // if (!accessToken) return;
 
+  console.log("Trying to place a pixel at", x, y);
   const data = await placePixel(x, y, 13, 4, accessToken);
-  console.log(data);
 
   {
     const { data } = await getPixel(x, y, accessToken, 4);
-    console.log(data.act.data);
+    if (data.act?.data) {
+      console.log(
+        "Latest pixel placement by",
+        data.act.data[0].data.userInfo.username,
+      );
+    }
   }
 
-  if (data.errors) {
-    return data.errors;
-  } else {
-    return data.data.act.data;
-  }
+  return data;
 }
 
-// for (const { username, password } of users) {
-//   console.log(await place(username, password, 502, 0));
-// }
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// !!! Put your access token here.
-const accessToken = "...";
-console.log(await place(accessToken, 502, 0));
+if (import.meta.main) {
+  const args = parse(Deno.args);
+
+  const { x = 502, y = 0, config } = args;
+
+  if (!config) {
+    // One off placements
+    for (const { accessToken } of users) {
+      const data = await place(accessToken, x, y);
+
+      if (data.errors) {
+        console.log("Error!", data.errors[0].message);
+      } else {
+        console.log("Pixel placed!", data.data.act.data);
+        break;
+      }
+    }
+  } else {
+    // Mass placements
+    const pixelData = JSON.parse(await Deno.readTextFile(config));
+    for (let i = 0; i < pixelData.length; i++) {
+      const [x, y] = pixelData[i];
+      const { accessToken } = users[i % users.length];
+
+      while (true) {
+        const data = await place(accessToken, x, y);
+
+        if (data.errors) {
+          console.log("Error!", data.errors[0].message);
+          // Retry every 60 seconds after hitting ratelimit
+          await sleep(1000 * 60);
+        } else {
+          console.log("Pixel placed!", data.data.act.data);
+          break;
+        }
+      }
+    }
+  }
+}
