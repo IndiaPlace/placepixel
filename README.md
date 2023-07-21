@@ -32,3 +32,5 @@ deno compile -A main.ts
 Watch this video to extract the access token from the reddit website:
 
 https://user-images.githubusercontent.com/35738060/161390213-d7f8354c-a97d-4a0f-9442-f33ba84941ba.mp4
+
+Video credits: PlaceCZ/Bot fuho#7423
